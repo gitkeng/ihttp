@@ -22,6 +22,7 @@ type IAPIConfig interface {
 	GetSSLCertFile() string
 	// GetSSLKeyFile is the option for setting ssl key file
 	GetSSLKeyFile() string
+	GetCORS() IAPICorsConfig
 }
 
 type SSLType string
@@ -40,7 +41,8 @@ type APIConfig struct {
 	// SSLCertFile is the option for setting ssl cert file
 	SSLCertFile string `mapstructure:"ssl-cert-file" json:"ssl_cert_file"`
 	// SSLKeyFile is the option for setting ssl key file
-	SSLKeyFile string `mapstructure:"ssl-key-file" json:"ssl_key_file"`
+	SSLKeyFile string        `mapstructure:"ssl-key-file" json:"ssl_key_file"`
+	Cors       APICorsConfig `mapstructure:"CORS" json:"cors"`
 }
 
 func (apiCfg *APIConfig) Bind() error {
@@ -55,6 +57,7 @@ func (apiCfg *APIConfig) Bind() error {
 			apiCfg.SSLPort = DefaultSSLPort
 		}
 	}
+	apiCfg.Cors.Bind()
 	return nil
 }
 
@@ -123,4 +126,8 @@ func (apiCfg *APIConfig) GetSSLKeyFile() string {
 
 func (apiCfg *APIConfig) IsHttpsOnly() bool {
 	return apiCfg.HttpsOnly
+}
+
+func (apiCfg *APIConfig) GetCORS() IAPICorsConfig {
+	return &apiCfg.Cors
 }

@@ -245,12 +245,21 @@ func New(options ...Option) (*Microservice, error) {
 
 	}
 
-	ms.echo.Use(middleware.RequestIDWithConfig(middleware.RequestIDConfig{
-		Generator: func() string {
-			return id.UUID()
-		},
-	}))
-
+	ms.echo.Use(
+		middleware.RequestIDWithConfig(middleware.RequestIDConfig{
+			Generator: func() string {
+				return id.UUID()
+			},
+		}),
+		middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOrigins:     ms.apiConfig.GetCORS().GetAllowOrigins(),
+			AllowMethods:     ms.apiConfig.GetCORS().GetAllowMethods(),
+			AllowHeaders:     ms.apiConfig.GetCORS().GetAllowHeaders(),
+			AllowCredentials: ms.apiConfig.GetCORS().IsAllowCredentials(),
+			ExposeHeaders:    ms.apiConfig.GetCORS().GetExposeHeaders(),
+			MaxAge:           ms.apiConfig.GetCORS().GetMaxAge(),
+		}),
+	)
 	if len(ms.middlewares) > 0 {
 		ms.echo.Use(ms.middlewares...)
 	}
